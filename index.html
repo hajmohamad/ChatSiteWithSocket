@@ -1,0 +1,122 @@
+
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت ساده</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+
+        }
+       
+        #chat {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+            align-items: center;
+            
+        }
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            bottom: 0;
+        }
+        #messages li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .my-message {
+            background-color: #dff0d8;
+            text-align: right;
+        }
+        .other-message {
+            background-color: #f2dede;
+            text-align: right;
+        }
+        #messageInput{
+            width: 80%;
+            height: 2rem;
+            border:0.1rem solid gray;
+            border-radius: 2rem;
+            margin-right: 0.5rem;
+            padding-right: 0.3rem;
+        }
+        button{
+            background-color: bisque;
+            border: none;
+            border-radius: 1rem;
+            width: 3rem;
+                        height: 2rem;
+
+        }
+        form{
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <h1 style="display: flex; justify-content: center; align-items: center;">چت </h1>
+        <ul id="messages"></ul>
+        <form id="messageForm" autocomplete="off">       
+                 <button type="submit">ارسال</button>
+            <input id="messageInput" placeholder="پیغام خود را وارد کنید" required>
+        </form>
+    </div>
+<script>
+    const socket = new WebSocket('wss://chatbot99.liara.run');
+    const username = prompt("نام کاربری خود را وارد کنید");
+    let isConnected = false;
+    socket.addEventListener('open',
+        function (event){
+                 socket.send(username); 
+
+        }
+    )
+
+    socket.onopen = function() {
+        isConnected = true;  
+    };
+
+    socket.onmessage = function(event) {
+        const messageItem = document.createElement('li');
+            messageItem.textContent = event.data;
+            messageItem.className = 'other-message';
+            document.getElementById('messages').appendChild(messageItem);
+            scroolToBottm();
+    };
+    document.getElementById('messageForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+            const messageItem = document.createElement('li');
+            messageItem.textContent = message;
+            messageItem.className = 'my-message';
+            document.getElementById('messages').appendChild(messageItem);
+            scroolToBottm();
+            socket.send(message);
+            messageInput.value = '';
+         });
+
+         function scroolToBottm(){
+            const message =document.getElementById('messages');
+            message.scrollTop=message.scrollHeight;
+         }
+</script>
+
+</body>
+</html>
